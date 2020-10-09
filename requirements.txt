@@ -1,0 +1,9 @@
+google-api-python-client
+twilio
+requests
+oauth2client
+selenium
+selenium-requests
+xmltodict
+google-auth-httplib2 
+google-auth-oauthlib

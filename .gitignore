@@ -1,0 +1,14 @@
+.DS_Store
+build
+dist
+env
+__pycache__
+*.pyc
+*.egg-info
+/.idea
+local_config
+chromedriver
+client_secret.json
+credentials.json
+token.json
+venvs/

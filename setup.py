@@ -1,0 +1,29 @@
+# new version to pypi => python setup.py sdist upload
+import os
+from setuptools import setup
+
+try:
+    from pypandoc import convert
+    read_md = lambda f: convert(f, 'rst')
+except ImportError:
+    print("warning: pypandoc module not found, could not convert Markdown to RST")
+    read_md = lambda f: open(f, 'r').read()
+
+readme = os.path.join(os.path.dirname(__file__), 'README.md')
+setup(
+    name='MintFinancialLog',
+    description='A tool to create a report of financial holdings',
+    long_description=read_md(readme) if os.path.exists(readme) else '',
+    version='1.00',
+    packages=['mintapi'],
+    license='The MIT License',
+    author='Daniel Reardon',
+    author_email='danreardon@gmail.com',
+    url='https://github.com/dpreardon/mintapi',
+    install_requires=['future', 'mock', 'requests', 'selenium-requests', 'xmltodict', 'pandas', 'keyring', 'selenium','twilio','google-api-python-client','oauth2client'],
+    entry_points=dict(
+        console_scripts=[
+            'mintapi = mintapi.api:main',
+        ],
+    ),
+)
