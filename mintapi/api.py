@@ -337,6 +337,7 @@ def get_web_driver(email, password, headless=False, mfa_method=None, mfa_token=N
         driver.implicitly_wait(1)  # seconds
         try:
             if mfa_method == 'soft-token':
+                logger.info("In the mfa_method for soft-token")
                 import oathtool
                 mfa_token_input = driver.find_element_by_id('ius-mfa-soft-token')
                 mfa_code = oathtool.generate_otp(mfa_token)
@@ -344,6 +345,7 @@ def get_web_driver(email, password, headless=False, mfa_method=None, mfa_token=N
                 mfa_token_submit = driver.find_element_by_id('ius-mfa-soft-token-submit-btn')
                 mfa_token_submit.click()
             else:
+                logger.info("In the mfa_method not for soft-token")
                 driver.find_element_by_id('ius-mfa-options-form')
                 try:
                     mfa_method_option = driver.find_element_by_id('ius-mfa-option-{}'.format(mfa_method))
@@ -356,6 +358,7 @@ def get_web_driver(email, password, headless=False, mfa_method=None, mfa_token=N
                     else:
                         time.sleep(30)
                         #mfa_code = (mfa_input_callback or input)("Please enter your 6-digit MFA code: ")
+                        logger.info("Going to get code from Twilio")
                         mfa_code = getMintCode()
                     mfa_code_input = driver.find_element_by_id("ius-mfa-confirm-code")
                     mfa_code_input.send_keys(mfa_code)
@@ -1124,21 +1127,23 @@ def createReport(data, sheetName):
     SAMPLE_RANGE_NAME = 'A1:Z100'
 
     creds = None
-    if os.path.exists('token.json'):
-        with open('token.json', 'rb') as token:
-            creds = json.load(token)
-            print(creds)
-            print(type(creds))
-    if not creds:
+    if os.path.exists('token.pickle'):
+        with open('token.pickle', 'rb') as token:
+            creds = pickle.load(token)
+    if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
             flow = InstalledAppFlow.from_client_secrets_file(
                 'credentials.json', SCOPES)
             creds = flow.run_local_server(port=0)
-        with open('token.json', 'wb') as token:
-            json.dumps(creds.to_json(), token)
+        # Save the credentials for the next run
+        with open('token.pickle', 'wb') as token:
+            pickle.dump(creds, token)
+
     service = build('sheets', 'v4', credentials=creds)
+
+
     print('After service', service)
 
     range_ = 'Sheet1!A1:Z100'
@@ -1157,6 +1162,7 @@ def createReport(data, sheetName):
     response = request.execute()
 
 def getMintCode():
+    logger.info("Starting function to getMintCode")
     messageList = {}
 
     client = Client(TWILIO_ACCOUNT_SID, TWILIO_TOKEN)
@@ -1472,7 +1478,7 @@ def main():
         data = mint.get_credit_score()
     elif options.credit_report:
         data = mint.get_credit_report(details=True)
-
+    print(data)
     #Get Local Configuration
     get_local_config()
     

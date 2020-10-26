@@ -11,4 +11,6 @@ chromedriver
 client_secret.json
 credentials.json
 token.json
+token.pickle
 venvs/
+session_path/
